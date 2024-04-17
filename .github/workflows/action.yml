@@ -21,13 +21,14 @@ jobs:
             }
 
             if (!regex.test(comment)) {
-              const issue_number = context.payload.pull_request.number;
+              const commentID = context.payload.comment.id;
               const message = `🚨 @${context.payload.comment.user.login}, your comment does not follow the required format 'TODO: [description]'. Please update the comment accordingly.`;
 
-              github.rest.issues.createComment({
+              github.rest.pulls.createReplyForReviewComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: issue_number,
+                pull_number: context.payload.pull_request.id,
+                comment_id: commentID,
                 body: message
               });
             }

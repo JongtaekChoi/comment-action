@@ -16,6 +16,7 @@ jobs:
             const regex = /^[pP][1-5]/;
             console.log(context);
             if (context.payload.comment.in_replay_to_id) {
+              console.log('코멘트의 코멘트는 아무것도 안함')
               return;
             }
 

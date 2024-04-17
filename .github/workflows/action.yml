@@ -9,13 +9,14 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
+      contents: write
       pull-requests: write
+      repository-projects: write
 
     steps:
       - name: Check format of review comment
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const comment = context.payload.comment.body;
             const regex = /^[pP][1-5]/;

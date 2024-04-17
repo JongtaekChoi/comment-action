@@ -1,17 +1,29 @@
-name: Pull request comment pn rule checker
+name: Review Comment Format Checker
+
 on:
-  issue_comment:
+  pull_request_review_comment:
     types: [created, edited]
 
 jobs:
-  pn_rule_check:
-    if: contains(github.event.comment.html_url, '/pull/')
-    runs-on: [ubuntu-latest]
+  check-comment-format:
+    runs-on: ubuntu-latest
     steps:
-      # comment 가 p1, p2, p3, p4, p5 로 시작하는지 확인한다
-      - name: check
-        run: |
-          if [[ ${{ github.event.comment.body }} =~ "^p[1-5]"]]
-          then ehco success
-          else echo fail
-          fi
+      - name: Check format of review comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment.body;
+            const regex = /^[pP][1-5]/;
+            console.log(context);
+
+            if (!regex.test(comment)) {
+              const issue_number = context.payload.pull_request.number;
+              const message = `🚨 @${context.payload.comment.user.login}, your comment does not follow the required format 'TODO: [description]'. Please update the comment accordingly.`;
+
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number,
+                body: message
+              });
+            }

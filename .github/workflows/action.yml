@@ -6,7 +6,8 @@ on:
 
 jobs:
   check-comment-format:
-    permissions: write-all
+    permissions:
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Check format of review comment

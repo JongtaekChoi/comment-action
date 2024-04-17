@@ -6,9 +6,11 @@ on:
 
 jobs:
   check-comment-format:
+    runs-on: ubuntu-latest
+
     permissions:
       pull-requests: write
-    runs-on: ubuntu-latest
+
     steps:
       - name: Check format of review comment
         uses: actions/github-script@v7

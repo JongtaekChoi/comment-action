@@ -6,6 +6,7 @@ on:
 
 jobs:
   check-comment-format:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Check format of review comment
@@ -14,7 +15,6 @@ jobs:
           script: |
             const comment = context.payload.comment.body;
             const regex = /^[pP][1-5]/;
-            console.log(context);
             if (context.payload.comment.in_reply_to_id) {
               console.log('코멘트의 코멘트는 아무것도 안함')
               return;
@@ -22,7 +22,7 @@ jobs:
 
             if (!regex.test(comment)) {
               const commentID = context.payload.comment.id;
-              const message = `🚨 @${context.payload.comment.user.login}, your comment does not follow the required format 'TODO: [description]'. Please update the comment accordingly.`;
+              const message = `🚨 @${context.payload.comment.user.login}, Pn 룰을 따르지 않는 코멘트입니다.`;
 
               github.rest.pulls.createReplyForReviewComment({
                 owner: context.repo.owner,

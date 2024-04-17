@@ -1,0 +1,17 @@
+name: Pull request comment pn rule checker
+on:
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  pn_rule_check:
+    if: contains(github.event.comment.html_url, '/pull/')
+    runs-on: [ubuntu-latest]
+    steps:
+      # comment 가 p1, p2, p3, p4, p5 로 시작하는지 확인한다
+      - name: check
+        run: |
+          if [[ ${{ github.event.comment.body }} =~ "^p[1-5]"]]
+          then ehco success
+          else echo fail
+          fi

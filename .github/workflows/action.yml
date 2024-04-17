@@ -32,7 +32,7 @@ jobs:
               github.rest.pulls.createReplyForReviewComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: context.payload.pull_request.id,
+                pull_number: context.payload.pull_request.number,
                 comment_id: commentID,
                 body: message
               });

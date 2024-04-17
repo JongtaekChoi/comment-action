@@ -15,6 +15,9 @@ jobs:
             const comment = context.payload.comment.body;
             const regex = /^[pP][1-5]/;
             console.log(context);
+            if (context.payload.comment.in_replay_to_id) {
+              return;
+            }
 
             if (!regex.test(comment)) {
               const issue_number = context.payload.pull_request.number;

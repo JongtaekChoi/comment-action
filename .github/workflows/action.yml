@@ -59,14 +59,15 @@ jobs:
               })
             }
 
+            const orphanWarnings = reviews
+              .filter(review => review.user.login == 'github-actions[bot]' && !review.in_reply_to_id);
+            console.log(orphanWarnings);
             // clean up
             await Promise.all(
-              reviews
-                .filter(review => review.user.login == 'github-actions[bot]' && !review.in_reply_to_id)
-                .map(comment => 
-                  github.rest.pulls.deleteReviewComment({
-                    ...prInfo,
-                    comment_id: comment.id
-                  })
-                )
-            )
+              orphanWarnings.map(comment => 
+                github.rest.pulls.deleteReviewComment({
+                  ...prInfo,
+                  comment_id: comment.id
+                })
+              )
+            );

@@ -19,14 +19,14 @@ jobs:
         with:
           script: |
             console.log(context.payload);
-            const comment = context.payload.comment.body;
+            const comment = context.payload.comment;
             const regex = /^[pP][1-5]/;
             if (context.payload.comment.in_reply_to_id) {
               console.log('코멘트의 코멘트는 아무것도 안함')
               return;
             }
 
-            if (!regex.test(comment)) {
+            if (!regex.test(comment.body)) {
               const commentID = context.payload.comment.id;
               const message = `🚨 @${context.payload.comment.user.login}, Pn 룰을 따르지 않는 코멘트입니다.`;
 
@@ -37,4 +37,12 @@ jobs:
                 comment_id: commentID,
                 body: message
               });
+            } else if (context.payload.action != 'created') {
+              const reviews = await github.rest.pulls.listCommentsForReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                review_id: comment.pull_request_review_id
+              });
+              console.log('reviews', reviews);
             }

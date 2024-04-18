@@ -26,22 +26,47 @@ jobs:
               return;
             }
 
+            const prInfo = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            }
+
+            const reviewsResponse = await github.rest.pulls.listReviewComments(prInfo);
+            const reviews = reviewsResponse.data;
+            const warningComment = reviews.find(review => 
+              review.in_reply_to_id == comment.id && review.user.login == 'github-actions[bot]'
+            );
+
             if (!regex.test(comment.body)) {
+              if (warningComment) {
+                console.log('이미 경고 코멘트가 존재함!');
+                return;
+              }
               const commentID = context.payload.comment.id;
               const message = `🚨 @${context.payload.comment.user.login}, Pn 룰을 따르지 않는 코멘트입니다.`;
 
               github.rest.pulls.createReplyForReviewComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.payload.pull_request.number,
+                ...prInfo,
                 comment_id: commentID,
                 body: message
               });
-            } else if (context.payload.action != 'created') {
-              const reviews = await github.rest.pulls.listReviewComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.payload.pull_request.number,
-              });
-              console.log('reviews', reviews);
+              return;
+            } else if (warningComment) {
+              await github.rest.pulls.deleteReviewComment({
+                ...prInfo,
+                comment_id: warningComment.id
+              })
             }
+
+            // clean up
+            await Promise.all(
+              reviews
+                .filter(review => review.user.login == 'github-actions[bot]' && !review.in_reply_to_id)
+                .map(comment => 
+                  github.rest.pulls.deleteReviewComment({
+                    ...prInfo,
+                    comment_id: comment.id
+                  })
+                )
+            )

@@ -38,11 +38,10 @@ jobs:
                 body: message
               });
             } else if (context.payload.action != 'created') {
-              const reviews = await github.rest.pulls.listCommentsForReview({
+              const reviews = await github.rest.pulls.listReviewComments({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.payload.pull_request.number,
-                review_id: comment.pull_request_review_id
               });
               console.log('reviews', reviews);
             }

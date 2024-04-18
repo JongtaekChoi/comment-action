@@ -1,17 +1,39 @@
-name: Pull request comment pn rule checker
+name: Review Comment Format Checker
+
 on:
-  issue_comment:
+  pull_request_review_comment:
     types: [created, edited]
 
 jobs:
-  pn_rule_check:
-    if: contains(github.event.comment.html_url, '/pull/')
-    runs-on: [ubuntu-latest]
+  check-comment-format:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+
     steps:
-      # comment 가 p1, p2, p3, p4, p5 로 시작하는지 확인한다
-      - name: check
-        run: |
-          if [[ ${{ github.event.comment.body }} =~ "^p[1-5]"]]
-          then ehco success
-          else echo fail
-          fi
+      - name: Check format of review comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment.body;
+            const regex = /^[pP][1-5]/;
+            if (context.payload.comment.in_reply_to_id) {
+              console.log('코멘트의 코멘트는 아무것도 안함')
+              return;
+            }
+
+            if (!regex.test(comment)) {
+              const commentID = context.payload.comment.id;
+              const message = `🚨 @${context.payload.comment.user.login}, Pn 룰을 따르지 않는 코멘트입니다.`;
+
+              github.rest.pulls.createReplyForReviewComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                comment_id: commentID,
+                body: message
+              });
+            }

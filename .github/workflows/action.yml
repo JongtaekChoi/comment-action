@@ -2,7 +2,7 @@ name: Review Comment Format Checker
 
 on:
   pull_request_review_comment:
-    types: [created, deleted]
+    types: [created, edited, deleted]
 
 jobs:
   check-comment-format:
